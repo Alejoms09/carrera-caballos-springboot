@@ -1,0 +1,35 @@
+﻿GUIA RAPIDA DE ENTREGA - CARRERA DE CABALLOS
+
+1) REPOSITORIO
+- URL: https://github.com/Alejoms09/carrera-caballos-springboot.git
+- Verificar que incluya: src, pom.xml, mvnw, mvnw.cmd y README.md
+
+2) EJECUCION LOCAL
+- Requisito: JDK 17
+- Comando: ./mvnw spring-boot:run
+- URL local: http://localhost:8080
+
+3) PRUEBAS
+- Comando: ./mvnw test
+- Deben pasar DeckTest y RaceServiceTest
+
+4) DEPLOY EN RAILWAY
+- New Project -> Deploy from GitHub Repo
+- Elegir: carrera-caballos-springboot
+- Si hace falta configurar comandos:
+  Build: ./mvnw clean package -DskipTests
+  Start: java -jar target/*.jar
+
+5) CONFIGURACION DE PUERTO
+- application.properties:
+  server.port=${PORT:8080}
+
+6) LINK FINAL
+- Copiar el dominio publico generado por Railway
+- Ese enlace es el que se entrega como aplicacion publicada
+
+7) CHECKLIST FINAL
+- Documento del proyecto
+- Repositorio GitHub
+- Link publico Railway
+- Instrucciones de ejecucion local
