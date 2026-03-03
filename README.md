@@ -16,12 +16,12 @@ Cada palo representa un caballo y la carrera avanza carta por carta hasta que un
 
 ## Descripcion del juego
 
-El sistema modela cuatro caballos:
+El sistema modela cuatro caballos (baraja espanola):
 
-- `SPADES`
-- `HEARTS`
-- `DIAMONDS`
-- `CLUBS`
+- `OROS`
+- `COPAS`
+- `BASTOS`
+- `ESPADAS`
 
 En cada turno se roba una carta del mazo:
 
