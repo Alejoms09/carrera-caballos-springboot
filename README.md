@@ -1,17 +1,18 @@
 # Juego de Caballos Multiusuario
 
-Aplicación Spring Boot + Thymeleaf + MySQL para apuestas de carrera de caballos con reglas de puntos.
+Aplicacion Spring Boot + Thymeleaf + MySQL para apuestas de carrera de caballos con reglas de puntos.
 
-## Funcionalidades implementadas
+## Funcionalidades
 
-- Registro/login de usuarios con sesión web.
-- Al registrarse, cada usuario recibe **1000 puntos**.
-- Límite de plataforma: **4 grupos**, con **máximo 4 usuarios por grupo**.
-- Apuesta de valor variable (puntos).
-- Si gana la apuesta: pago de **apuesta x5**.
-- Compra de puntos ilimitada:
-  - **1000 puntos = 10.000 COP** por paquete.
+- Registro y login con sesion web.
+- Cada usuario nuevo recibe 1000 puntos.
+- Limite de plataforma: 4 grupos de 4 usuarios (16 usuarios maximo).
+- Apuesta de valor variable.
+- Si gana la apuesta: pago de apuesta x5.
+- Compra ilimitada de puntos:
+  - 1000 puntos por 10.000 COP por paquete.
 - Historial persistente de apuestas y compras.
+- Replay progresivo de cada apuesta en pantalla dedicada.
 
 ## Stack
 
@@ -22,35 +23,83 @@ Aplicación Spring Boot + Thymeleaf + MySQL para apuestas de carrera de caballos
 - MySQL Connector/J
 - Maven Wrapper
 
-## Configuración de base de datos
+## Base de datos local (XAMPP)
 
-`src/main/resources/application.properties`:
-
-```properties
-spring.datasource.url=${DATABASE_URL:jdbc:mysql://localhost:3306/juegodcaballos?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
-spring.datasource.username=${DATABASE_USER:root}
-spring.datasource.password=${DATABASE_PASSWORD:}
-spring.jpa.hibernate.ddl-auto=update
-```
-
-### MySQL en XAMPP
-
-1. Inicia MySQL desde XAMPP.
-2. Importa `database/mysql/juegodcaballos_mysql.sql` en phpMyAdmin o consola.
-3. Ejecuta la app localmente.
-
-## Ejecutar local
-
-En Windows:
+1. Inicia MySQL en XAMPP.
+2. Importa el script:
+   - `database/mysql/juegodcaballos_mysql.sql`
+3. Ejecuta la app:
 
 ```powershell
 .\mvnw.cmd spring-boot:run
 ```
 
-URL:
+URL local:
 
 ```text
 http://localhost:8080
+```
+
+## Railway
+
+### 1) Servicio Web
+
+Repo: `Alejoms09/carrera-caballos-springboot`
+Branch: `main`
+
+Este repo incluye `railway.json` con start command:
+
+```text
+java -jar target/*.jar
+```
+
+### 2) Servicio MySQL en Railway
+
+Crea un servicio MySQL dentro del mismo proyecto de Railway.
+
+### 3) Variables en el servicio Web
+
+Asigna variables referenciando el servicio MySQL:
+
+- `MYSQLHOST`
+- `MYSQLPORT`
+- `MYSQLDATABASE`
+- `MYSQLUSER`
+- `MYSQLPASSWORD`
+
+Opcional:
+
+- `JDBC_DATABASE_URL` (si quieres forzar una URL JDBC completa)
+
+El puerto `PORT` lo inyecta Railway automaticamente.
+
+### 4) Verificar que deployo la version nueva
+
+Abre:
+
+```text
+https://<tu-dominio-railway>/version
+```
+
+Debe mostrar:
+
+- Nombre de app
+- `commit=<hash>`
+
+Si no coincide con el ultimo commit de `main`, haz `Redeploy latest commit` y marca `Clear build cache`.
+
+### 5) Migrar datos desde tu XAMPP a Railway (opcional)
+
+Exportar local:
+
+```powershell
+C:\xampp\mysql\bin\mysqldump.exe -u root juegodcaballos > juegodcaballos_dump.sql
+```
+
+Importar en Railway MySQL (usando host/port/user/pass/db de Railway):
+
+```powershell
+mysql -h <MYSQLHOST> -P <MYSQLPORT> -u <MYSQLUSER> -p <MYSQLDATABASE> < juegodcaballos_dump.sql
 ```
 
 ## Pruebas
@@ -58,20 +107,3 @@ http://localhost:8080
 ```powershell
 .\mvnw.cmd test
 ```
-
-## Deploy en Railway (MySQL)
-
-Configura variables en Railway:
-
-- `MYSQLHOST`
-- `MYSQLPORT`
-- `MYSQLDATABASE`
-- `MYSQLUSER`
-- `MYSQLPASSWORD`
-- Opcional: `JDBC_DATABASE_URL` (si quieres forzar URL JDBC completa)
-- `PORT` (Railway la inyecta automáticamente)
-
-Comandos (si Railway los solicita):
-
-- Build: `./mvnw clean package -DskipTests`
-- Start: `java -jar target/*.jar`
