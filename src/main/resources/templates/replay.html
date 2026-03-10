@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Simulacion de Apuesta</title>
+    <link rel="stylesheet" th:href="@{/styles.css}"/>
+</head>
+<body class="replay-page">
+<div class="ambient"></div>
+<main class="container replay-container">
+    <header class="panel hero reveal" data-reveal="0">
+        <p class="eyebrow">Simulacion en vivo</p>
+        <h1>Tu carrera ya esta corriendo</h1>
+        <p class="hero-copy">
+            Usuario: <strong th:text="${user.username}"></strong> |
+            Puntos actuales: <strong th:text="${user.points}"></strong>
+        </p>
+        <div class="hero-bar"></div>
+    </header>
+
+    <section class="panel result-card reveal tilt" data-reveal="1">
+        <h2>Replay progresivo de la apuesta</h2>
+        <div class="chip-grid">
+            <article class="chip">
+                <span class="chip-label">Apuesta</span>
+                <strong class="chip-value" th:text="${betOutcome.betPoints}"></strong>
+            </article>
+            <article class="chip">
+                <span class="chip-label">Caballo elegido</span>
+                <strong class="chip-value" th:text="${betOutcome.chosenSuit}"></strong>
+            </article>
+            <article class="chip">
+                <span class="chip-label">Pista</span>
+                <strong class="chip-value" th:text="${betOutcome.trackLength + ' casillas'}"></strong>
+            </article>
+        </div>
+
+        <div id="racePlayback"
+             class="race-playback"
+             th:attr="data-track-length=${betOutcome.trackLength},data-winner=${betOutcome.winnerSuit},data-payout=${betOutcome.payoutPoints},data-won=${betOutcome.won}">
+            <div class="race-lane" th:each="suit : ${suits}" th:attr="data-suit=${suit}">
+                <div class="lane-head">
+                    <strong th:text="${suit}"></strong>
+                    <span class="lane-position">0</span>
+                </div>
+                <div class="lane-cells">
+                    <span class="lane-cell"
+                          th:each="i : ${#numbers.sequence(1, betOutcome.trackLength)}"
+                          th:text="${i}"></span>
+                </div>
+                <div class="lane-progress">
+                    <span></span>
+                </div>
+            </div>
+
+            <div class="playback-bar">
+                <p id="playbackStatus">Iniciando simulacion...</p>
+                <button type="button" id="playbackToggle" class="btn btn-ghost">Pausar</button>
+            </div>
+
+            <ul class="event-log progressive-log" id="progressiveLog"></ul>
+            <ul class="hidden-log">
+                <li th:each="line : ${betOutcome.raceLog}" th:text="${line}" data-log-line></li>
+            </ul>
+
+            <div class="result-final hidden" id="finalOutcome">
+                <strong id="finalOutcomeText"></strong>
+            </div>
+        </div>
+
+        <div class="replay-actions">
+            <a href="/" class="btn btn-accent">Apostar de nuevo</a>
+        </div>
+    </section>
+</main>
+<script th:src="@{/app.js}"></script>
+</body>
+</html>

@@ -3,25 +3,116 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Carrera de Caballos Retro</title>
+    <title>Carrera de Caballos - Multiusuario</title>
     <link rel="stylesheet" th:href="@{/styles.css}"/>
 </head>
-<body>
-<div class="bg-grid"></div>
+<body th:attr="data-package-price=${packagePriceCop}">
+<div class="ambient"></div>
 <main class="container">
-    <header class="hero panel">
-        <p class="kicker">Spring Boot Edition</p>
-        <h1>Carrera de Caballos con Cartas</h1>
-        <p class="sub">Modo retro arcade con reglas clasicas y variante de retroceso.</p>
+    <header class="panel hero reveal" data-reveal="0">
+        <p class="eyebrow">Carrera de Caballos x Apuestas</p>
+        <h1>Velocidad, puntos y premio x5</h1>
+        <p class="hero-copy">
+            Registra tu cuenta, recibe 1000 puntos y juega carreras con apuesta variable.
+            Si aciertas el caballo ganador, cobras cinco veces tu apuesta.
+        </p>
+        <div class="hero-bar"></div>
     </header>
 
-    <section class="layout">
+    <section class="flash-stack">
+        <p class="flash flash-error" th:if="${error}" th:text="${error}"></p>
+        <p class="flash flash-success" th:if="${success}" th:text="${success}"></p>
+    </section>
+
+    <section class="content-grid" th:if="${user == null}">
         <div class="stack">
-            <form method="post" action="/new" class="panel controls">
-                <h2>Nueva carrera</h2>
+            <form method="post" action="/register" class="panel form-card reveal tilt" data-reveal="1">
+                <h2>Registro rapido</h2>
                 <div class="control-grid">
                     <label>
-                        Longitud de pista (3-12)
+                        Usuario
+                        <input type="text" name="username" minlength="3" maxlength="40" required/>
+                    </label>
+                    <label>
+                        Contrasena
+                        <input type="password" name="password" minlength="6" required/>
+                    </label>
+                </div>
+                <p class="hint">Empiezas con <strong>1000 puntos</strong> al crear la cuenta.</p>
+                <button type="submit" class="btn btn-accent">Crear cuenta</button>
+            </form>
+
+            <form method="post" action="/login" class="panel form-card reveal tilt" data-reveal="2">
+                <h2>Entrar al juego</h2>
+                <div class="control-grid">
+                    <label>
+                        Usuario
+                        <input type="text" name="username" required/>
+                    </label>
+                    <label>
+                        Contrasena
+                        <input type="password" name="password" required/>
+                    </label>
+                </div>
+                <button type="submit" class="btn">Iniciar sesion</button>
+            </form>
+        </div>
+
+        <aside class="panel side-card reveal tilt" data-reveal="3">
+            <h2>Capacidad activa</h2>
+            <p class="hint">Maximo: 4 grupos de 4 usuarios (16 cuentas).</p>
+            <ul class="group-list">
+                <li class="group-item" th:each="group : ${groups}">
+                    <div class="group-row">
+                        <strong th:text="${group.code}"></strong>
+                        <span th:text="${group.usersCount + ' / ' + group.capacity}"></span>
+                    </div>
+                    <div class="meter">
+                        <span th:style="'width:' + (${group.usersCount * 100 / group.capacity}) + '%'"></span>
+                    </div>
+                </li>
+            </ul>
+        </aside>
+    </section>
+
+    <section class="content-grid" th:if="${user != null}">
+        <div class="stack">
+            <section class="panel account-card reveal tilt" data-reveal="1">
+                <h2>Tu cuenta</h2>
+                <div class="chip-grid">
+                    <article class="chip">
+                        <span class="chip-label">Usuario</span>
+                        <strong class="chip-value" th:text="${user.username}"></strong>
+                    </article>
+                    <article class="chip">
+                        <span class="chip-label">Puntos</span>
+                        <strong class="chip-value chip-points" th:text="${user.points}"></strong>
+                    </article>
+                    <article class="chip">
+                        <span class="chip-label">Grupo</span>
+                        <strong class="chip-value" th:text="${user.gameGroup.code}"></strong>
+                    </article>
+                </div>
+                <form method="post" action="/logout" class="inline-form">
+                    <button type="submit" class="btn">Cerrar sesion</button>
+                </form>
+            </section>
+
+            <form method="post" action="/play" class="panel form-card reveal tilt" data-reveal="2">
+                <h2>Apostar carrera</h2>
+                <div class="control-grid">
+                    <label>
+                        Caballo
+                        <select name="chosenSuit" required>
+                            <option th:each="suit : ${suits}" th:value="${suit}" th:text="${suit}"></option>
+                        </select>
+                    </label>
+                    <label>
+                        Puntos apostados
+                        <input type="number" name="betPoints" min="1" value="100" required/>
+                    </label>
+                    <label>
+                        Longitud de pista
                         <input type="number" name="trackLength" min="3" max="12" value="7"/>
                     </label>
                     <label>
@@ -32,59 +123,64 @@
                         </select>
                     </label>
                 </div>
-                <button type="submit" class="btn btn-accent">Reiniciar</button>
+                <div class="calc-line">
+                    <span>Pago potencial (x5)</span>
+                    <strong id="potentialPayout">500 puntos</strong>
+                </div>
+                <button type="submit" class="btn btn-accent">Jugar ahora</button>
             </form>
 
-            <div class="panel">
-                <h2>Estado</h2>
-                <div class="stats">
-                    <div class="chip">
-                        <span class="chip-label">Ultima carta</span>
-                        <span class="chip-value" th:text="${race.lastDrawn}">-</span>
-                    </div>
-                    <div class="chip">
-                        <span class="chip-label">Mazo restante</span>
-                        <span class="chip-value" th:text="${race.deck.size()}">0</span>
-                    </div>
-                    <div class="chip" th:if="${race.winner != null}">
-                        <span class="chip-label">Ganador</span>
-                        <span class="chip-value winner" th:text="${race.winner}"></span>
-                    </div>
+            <form method="post" action="/buy-points" class="panel form-card reveal tilt" data-reveal="3">
+                <h2>Tienda de puntos</h2>
+                <div class="control-grid">
+                    <label>
+                        Cantidad de paquetes
+                        <input type="number" name="packagesCount" min="1" value="1"/>
+                    </label>
                 </div>
+                <div class="calc-line">
+                    <span>Detalle del paquete</span>
+                    <strong>
+                        <span th:text="${packageSize}"></span> pts por
+                        <span th:text="${'$' + packagePriceCop + ' COP'}"></span>
+                    </strong>
+                </div>
+                <div class="calc-line">
+                    <span>Total estimado</span>
+                    <strong id="purchaseTotal">$10.000 COP</strong>
+                </div>
+                <button type="submit" class="btn">Comprar puntos</button>
+            </form>
 
-                <div class="track">
-                    <div class="horseRow" th:each="entry : ${race.horses}">
-                        <div class="horseName" th:text="${entry.key}"></div>
-                        <div class="lane">
-                            <div class="cell"
-                                 th:each="i : ${#numbers.sequence(1, race.config.trackLength)}"
-                                 th:classappend="${entry.value.position >= i} ? 'filled' : ''">
-                                <span th:text="${i}"></span>
-                            </div>
-                        </div>
-                        <div class="posBadge" th:text="${entry.value.position}"></div>
-                    </div>
-                </div>
-
-                <div class="actions">
-                    <form method="post" action="/step">
-                        <button type="submit" class="btn" th:disabled="${race.winner != null}">Paso (1 carta)</button>
-                    </form>
-                    <form method="post" action="/auto">
-                        <button type="submit" class="btn btn-accent" th:disabled="${race.winner != null}">Auto (hasta ganar)</button>
-                    </form>
-                </div>
-            </div>
         </div>
 
-        <aside class="panel log-panel">
-            <h2>Registro</h2>
-            <ul class="log">
-                <li th:each="line : ${log}" th:text="${line}"></li>
-                <li th:if="${#lists.isEmpty(log)}" class="log-empty">Aun no hay jugadas. Presiona Paso para empezar.</li>
+        <aside class="panel side-card reveal tilt" data-reveal="5">
+            <h2>Historial del jugador</h2>
+
+            <h3>Apuestas recientes</h3>
+            <ul class="history-list">
+                <li th:each="bet : ${bets}">
+                    <span th:text="${#temporals.format(bet.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+                    <span th:text="${bet.chosenSuit + ' -> ' + bet.winnerSuit}"></span>
+                    <span th:text="${'Apuesta: ' + bet.betPoints}"></span>
+                    <strong th:text="${bet.won ? ('Pago: ' + bet.payoutPoints) : 'Perdio'}"></strong>
+                </li>
+                <li th:if="${#lists.isEmpty(bets)}">Aun no tienes apuestas registradas.</li>
+            </ul>
+
+            <h3>Compras recientes</h3>
+            <ul class="history-list">
+                <li th:each="purchase : ${purchases}">
+                    <span th:text="${#temporals.format(purchase.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+                    <span th:text="${'Paquetes: ' + purchase.packagesCount}"></span>
+                    <span th:text="${'Puntos: +' + purchase.pointsAdded}"></span>
+                    <strong th:text="${'$' + purchase.amountCop + ' COP'}"></strong>
+                </li>
+                <li th:if="${#lists.isEmpty(purchases)}">Aun no tienes compras registradas.</li>
             </ul>
         </aside>
     </section>
 </main>
+<script th:src="@{/app.js}"></script>
 </body>
 </html>
