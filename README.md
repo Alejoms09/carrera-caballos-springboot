@@ -63,10 +63,12 @@ http://localhost:8080
 
 Configura variables en Railway:
 
-- `DATABASE_URL` (jdbc url de Railway MySQL)
-- `DATABASE_USER`
-- `DATABASE_PASSWORD`
-- También funciona con `MYSQL_URL`, `MYSQLUSER`, `MYSQLPASSWORD`
+- `MYSQLHOST`
+- `MYSQLPORT`
+- `MYSQLDATABASE`
+- `MYSQLUSER`
+- `MYSQLPASSWORD`
+- Opcional: `JDBC_DATABASE_URL` (si quieres forzar URL JDBC completa)
 - `PORT` (Railway la inyecta automáticamente)
 
 Comandos (si Railway los solicita):
