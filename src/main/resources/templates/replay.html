@@ -4,7 +4,7 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Simulacion de Apuesta</title>
-    <link rel="stylesheet" th:href="@{/styles.css}"/>
+    <link rel="stylesheet" th:href="@{/styles.css(v=${assetVersion})}"/>
 </head>
 <body class="replay-page">
 <div class="ambient"></div>
@@ -74,6 +74,6 @@
         </div>
     </section>
 </main>
-<script th:src="@{/app.js}"></script>
+<script th:src="@{/app.js(v=${assetVersion})}"></script>
 </body>
 </html>
